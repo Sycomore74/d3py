@@ -60,3 +60,42 @@ Check out the examples in the folder for more functionality! Assuming everything
 # area
 
 ![area example](http://mikedewar.org/area.png)
+
+## S&P 500 Stock Selector
+
+This project fetches S&P 500 constituents, downloads historical price data, computes several robust price-based factors (momentum, volatility, drawdown, Sharpe), and ranks stocks using a composite score to select the top candidates.
+
+### Quickstart
+
+1. Create a Python environment and install dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+2. Run the selector:
+
+```bash
+python main.py --top-n 20 --end YYYY-MM-DD
+```
+
+Flags:
+- `--top-n`: number of stocks to output (default: 20)
+- `--start`: start date for price history (default: end minus ~3 years)
+- `--end`: end date for the analysis (default: today)
+- `--min-history-days`: minimum trading days required per stock (default: 252)
+- `--output`: path to save the ranked results as CSV (default: `sp500_ranked.csv`)
+- `--save-prices`: optional path to save the closing price panel as CSV
+- `--weights`: custom factor weights like `momentum=0.4,sharpe=0.3,low_vol=0.15,low_dd=0.15`
+
+### Notes
+- Price data is retrieved with `yfinance` and auto-adjusted for splits/dividends.
+- S&P 500 constituents are scraped from Wikipedia.
+- Factors are computed as of `--end`:
+  - 12-1 momentum (12 months excluding the most recent month)
+  - 1-year Sharpe ratio (daily mean/std; annualized)
+  - 6-month volatility (daily std)
+  - 1-year max drawdown
+- Composite ranking uses percentile ranks with higher-is-better orientation.
